@@ -98,7 +98,7 @@ export default function CartPage() {
       </div>
 
       <aside className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Summary</p>
+        {/* <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Summary</p> */}
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-slate-900">Order total</h2>
 
         <div className="mt-6 space-y-3 text-sm text-slate-600">
@@ -108,7 +108,7 @@ export default function CartPage() {
           </div>
           <div className="flex items-center justify-between">
             <span>Shipping</span>
-            <span>—</span>
+            <span>Free</span>
           </div>
           <div className="flex items-center justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-900">
             <span>Total</span>
