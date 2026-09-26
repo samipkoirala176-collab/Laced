@@ -1,0 +1,350 @@
+LACED - LOCAL SETUP AND FREE DEPLOYMENT GUIDE
+===============================================
+
+Repository layout
+-----------------
+- client/                 React + Vite frontend
+- Laced.Api/              ASP.NET Core .NET 10 backend
+- backend-doc.txt         API documentation
+- Laced.Api/Migrations/   Existing Entity Framework migrations
+
+Important security note
+-----------------------
+The development appsettings file contains local/test credentials and an eSewa test secret. Do not use those values in production. Before publishing the repository:
+
+1. Replace the development admin password.
+2. Generate a new long random JWT key.
+3. Use a production database password/URL.
+4. Use eSewa credentials for the environment you are actually using.
+5. Keep production secrets in host environment variables, not in Git.
+6. If a secret was ever pushed to a public repository, rotate it even if it was only intended for testing.
+
+The backend reads configuration using the ASP.NET Core configuration hierarchy. Environment variables use double underscores, for example `Jwt__Key` means `Jwt:Key`.
+
+PART 1 - RUN ON ANOTHER WINDOWS DEVICE
+======================================
+
+1. Install prerequisites
+------------------------
+Install these tools on the new device:
+
+- Git: https://git-scm.com/downloads
+- .NET 10 SDK: https://dotnet.microsoft.com/download/dotnet/10.0
+- Node.js LTS: https://nodejs.org/
+- PostgreSQL 16 or newer: https://www.postgresql.org/download/windows/
+
+After installation, verify:
+
+    git --version
+    dotnet --version
+    node --version
+    npm --version
+    psql --version
+
+2. Clone the repository
+-----------------------
+From the folder where you want the project:
+
+    git clone <YOUR_GITHUB_REPOSITORY_URL>
+    cd Laced
+
+The commands below assume the terminal is at the repository root, the folder containing `client`, `Laced.Api`, and `backend-doc.txt`.
+
+3. Create the PostgreSQL database
+---------------------------------
+Create a PostgreSQL database named `laced`. The PostgreSQL user must have permission to create tables and run migrations.
+
+Using pgAdmin:
+- Connect to the PostgreSQL server.
+- Create a database named `laced`.
+- Note the username, password, host, and port.
+
+Typical local connection string:
+
+    Host=localhost;Port=5432;Database=laced;Username=postgres;Password=YOUR_POSTGRES_PASSWORD
+
+4. Configure the backend
+------------------------
+For local work, copy the values from `Laced.Api/appsettings.Development.json` as a starting point, but replace the password and secrets.
+
+Required backend settings:
+
+    ConnectionStrings__DefaultConnection
+    Jwt__Key
+    Jwt__Issuer
+    Jwt__Audience
+    AdminSeed__Name
+    AdminSeed__Email
+    AdminSeed__Password
+    Esewa__PaymentUrl
+    Esewa__StatusCheckUrl
+    Esewa__ProductCode
+    Esewa__SecretKey
+    Backend__BaseUrl
+    Frontend__BaseUrl
+
+The application expects these eSewa paths:
+
+    Esewa__SuccessPath=/api/payments/esewa/success
+    Esewa__FailurePath=/api/payments/esewa/failure
+
+For local development, the intended URLs are:
+
+    Backend__BaseUrl=https://localhost:7183
+    Frontend__BaseUrl=http://localhost:5173
+
+The backend launch profile already uses HTTPS port 7183. Do not randomly change the backend port without also changing the frontend proxy and `Backend__BaseUrl`.
+
+For a temporary PowerShell session, configuration can be supplied like this:
+
+    $env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=laced;Username=postgres;Password=YOUR_PASSWORD"
+    $env:Jwt__Key="GENERATE_A_LONG_RANDOM_VALUE"
+    $env:AdminSeed__Name="Laced Admin"
+    $env:AdminSeed__Email="admin@example.com"
+    $env:AdminSeed__Password="A_NEW_STRONG_PASSWORD"
+
+Alternatively, place local-only values in an untracked configuration file supported by your normal ASP.NET Core environment setup. Never commit passwords or production secrets.
+
+5. Restore, migrate, and run the backend
+-----------------------------------------
+From the repository root:
+
+    dotnet restore .\Laced.Api\Laced.Api.csproj
+    dotnet tool install --global dotnet-ef
+    dotnet ef database update --project .\Laced.Api\Laced.Api.csproj
+    dotnet run --project .\Laced.Api\Laced.Api.csproj --launch-profile https
+
+If `dotnet-ef` is already installed, update it when needed:
+
+    dotnet tool update --global dotnet-ef
+
+The first backend startup also runs `Database.MigrateAsync()`. Running `dotnet ef database update` explicitly is still useful because it shows migration errors before the server starts.
+
+Check:
+
+    https://localhost:7183/swagger
+
+If HTTPS shows a certificate warning, trust the .NET development certificate:
+
+    dotnet dev-certs https --clean
+    dotnet dev-certs https --trust
+
+6. Configure and run the frontend
+---------------------------------
+The frontend uses Vite. In `client/.env`, use values matching the backend:
+
+    VITE_API_BASE_URL=
+    VITE_FRONTEND_PORT=5173
+    VITE_BACKEND_URL=https://localhost:7183
+
+An empty `VITE_API_BASE_URL` is correct for local Vite development because `client/vite.config.js` proxies `/api` and `/uploads` to `VITE_BACKEND_URL`.
+
+Install dependencies and run:
+
+    cd client
+    npm install
+    npm run dev
+
+Open:
+
+    http://localhost:5173
+
+For a production-style local preview:
+
+    npm run build
+    npm run preview
+
+The frontend must be started from `client/`, or from the repository root with:
+
+    npm --prefix .\client run dev
+
+PART 2 - FREE HOSTING WITHOUT A CREDIT CARD
+===========================================
+
+Free hosting policies change often, so check the provider's current terms before deployment. A practical no-card stack to investigate is:
+
+- Database: Neon free PostgreSQL
+- Backend: Render free web service, or another provider that supports a free public ASP.NET/Docker service without card verification
+- Frontend: Vercel or Netlify free static hosting
+
+The exact availability of free backend services can change. The essential requirement is a public HTTPS URL for the backend. A computer on localhost cannot receive eSewa callbacks.
+
+Recommended deployment order:
+
+1. Create the hosted PostgreSQL database.
+2. Deploy the backend and set its environment variables.
+3. Run/apply EF migrations against the hosted database.
+4. Confirm the backend Swagger/health URL works.
+5. Deploy the frontend with the backend public URL.
+6. Update backend CORS/frontend/eSewa redirect configuration with the final frontend URL.
+7. Test signup, login, product browsing, checkout, and eSewa callbacks.
+
+A. Hosted PostgreSQL
+--------------------
+Create a free PostgreSQL database with Neon or another provider. Copy its connection string. It normally looks similar to:
+
+    Host=ep-example.region.aws.neon.tech;Port=5432;Database=neondb;Username=...;Password=...;SSL Mode=Require
+
+Set this on the backend host as:
+
+    ConnectionStrings__DefaultConnection=<HOSTED_POSTGRES_CONNECTION_STRING>
+
+Do not put this connection string in frontend code.
+
+B. Deploying the ASP.NET backend
+--------------------------------
+Create a free public web service with a provider that supports .NET 10 or a Docker-based ASP.NET deployment. Configure the service to listen on the provider's port. If the provider exposes a `PORT` variable, the production process must bind to all interfaces, not only localhost. A typical production setting is conceptually:
+
+    ASPNETCORE_URLS=http://0.0.0.0:$PORT
+
+The exact build/start fields depend on the provider. Use the repository project file as the source of truth:
+
+    dotnet restore Laced.Api/Laced.Api.csproj
+    dotnet publish Laced.Api/Laced.Api.csproj -c Release -o out
+    dotnet out/Laced.Api.dll
+
+If the host does not provide a .NET runtime build environment, use its documented ASP.NET Docker deployment method. Do not commit provider-specific secrets.
+
+Set these backend environment variables on the host:
+
+    ConnectionStrings__DefaultConnection=<HOSTED_DATABASE_URL>
+    Jwt__Key=<LONG_RANDOM_PRODUCTION_SECRET>
+    Jwt__Issuer=Laced.Api
+    Jwt__Audience=Laced.Client
+    AdminSeed__Name=<ADMIN_NAME>
+    AdminSeed__Email=<ADMIN_EMAIL>
+    AdminSeed__Password=<STRONG_ADMIN_PASSWORD>
+
+    Esewa__PaymentUrl=<ESEWA_PAYMENT_URL>
+    Esewa__StatusCheckUrl=<ESEWA_STATUS_URL>
+    Esewa__ProductCode=<ESEWA_PRODUCT_CODE>
+    Esewa__SecretKey=<ESEWA_SECRET>
+    Esewa__SuccessPath=/api/payments/esewa/success
+    Esewa__FailurePath=/api/payments/esewa/failure
+
+    Backend__BaseUrl=https://YOUR-BACKEND-DOMAIN
+    Frontend__BaseUrl=https://YOUR-FRONTEND-DOMAIN
+    Frontend__SuccessPath=payment/success
+    Frontend__FailurePath=payment/failure
+
+`Backend__BaseUrl` must be the public HTTPS backend URL with no trailing slash. `Frontend__BaseUrl` must be the public frontend origin with no trailing slash.
+
+C. Applying migrations in production
+-------------------------------------
+The backend startup runs migrations, but apply them deliberately during deployment when the host supports a release/one-off command:
+
+    dotnet ef database update --project Laced.Api/Laced.Api.csproj
+
+If the deployment host cannot run the EF CLI, the startup migration can apply the committed migrations when the service starts. Watch the deployment logs and confirm that the database user has schema-creation permission.
+
+Do not create a new migration just because the project is on another device. Use the existing migrations. Create a new migration only after changing an EF model/schema:
+
+    dotnet ef migrations add DescriptiveName --project Laced.Api/Laced.Api.csproj
+    dotnet ef database update --project Laced.Api/Laced.Api.csproj
+
+D. Deploying the Vite frontend
+------------------------------
+Create a free Vercel or Netlify site from the `client` directory.
+
+Build command:
+
+    npm run build
+
+Output directory:
+
+    dist
+
+Set this frontend environment variable in the hosting dashboard:
+
+    VITE_API_BASE_URL=https://YOUR-BACKEND-DOMAIN
+
+For a deployed frontend, do not leave `VITE_API_BASE_URL` empty. The Vite development proxy does not exist after deployment. `/api` and `/uploads` must be requested from the public backend URL.
+
+If the frontend host supports SPA rewrites, configure every unknown route to serve `index.html`. This is needed for routes such as `/shop`, `/products/<id>`, `/account/orders/<id>`, and `/admin/products/<id>` after a browser refresh.
+
+`VITE_BACKEND_URL` and `VITE_FRONTEND_PORT` are mainly local-development settings. They are not substitutes for `VITE_API_BASE_URL` in production.
+
+E. CORS and eSewa callback checklist
+-------------------------------------
+After both public URLs exist:
+
+1. Set `Frontend__BaseUrl` on the backend to the exact frontend origin, for example `https://laced.vercel.app`.
+2. Set `Backend__BaseUrl` to the exact backend origin, for example `https://laced-api.onrender.com`.
+3. Ensure the frontend uses `VITE_API_BASE_URL=https://laced-api.onrender.com`.
+4. Ensure the eSewa success callback resolves to:
+
+       https://laced-api.onrender.com/api/payments/esewa/success
+
+5. Ensure the eSewa failure callback resolves to:
+
+       https://laced-api.onrender.com/api/payments/esewa/failure
+
+6. Confirm the backend redirects successful/failure results to the configured frontend paths:
+
+       https://laced.vercel.app/payment/success
+       https://laced.vercel.app/payment/failure
+
+7. Do not use `localhost` in any production URL.
+8. Confirm the provider's HTTPS certificate is active.
+9. Confirm CORS allows the exact frontend origin, including scheme and excluding a trailing slash.
+10. Test eSewa with the correct sandbox/production URLs and credentials. Sandbox callbacks and production callbacks are not interchangeable.
+
+F. Admin seed behavior
+-----------------------
+On startup, the backend creates the configured admin user if it does not already exist and assigns the Admin role.
+
+For a new production database:
+- Set `AdminSeed__Email`, `AdminSeed__Password`, and `AdminSeed__Name` before the first startup.
+- Log in once through the frontend and confirm `/admin` works.
+- Change the password if the application later supports profile password changes, or update it through the existing auth flow.
+
+For an existing database, changing the seed environment variables does not automatically rename or replace an existing admin account. Treat the seed values as initial account values, not as a password-management system.
+
+G. Uploaded product images
+--------------------------
+Product uploads are stored under the backend's `wwwroot/uploads/products` directory. A free web service may have ephemeral storage, meaning uploaded images can disappear after redeploy/restart.
+
+For a college demo, this may be acceptable. For durable deployment, use object storage or a persistent disk supported by the host and update the upload implementation later. The frontend's `/uploads` URLs must continue to resolve from the backend domain.
+
+H. Troubleshooting checklist
+-----------------------------
+Frontend shows network errors:
+- Check `VITE_API_BASE_URL`.
+- Check backend HTTPS URL and Swagger.
+- Check browser Network tab for CORS errors.
+- Rebuild the frontend after changing Vite environment variables.
+
+Backend fails on startup:
+- Check the PostgreSQL connection string.
+- Check JWT key, admin seed, and required eSewa/URL settings.
+- Check migration permissions.
+- Check the deployment logs for the first configuration exception.
+
+Login succeeds but admin access fails:
+- Confirm the logged-in account has the Admin role in the database.
+- Confirm the token was issued after the role was assigned.
+- Log out and log in again.
+
+Payment callback fails:
+- Do not use localhost.
+- Confirm the backend is publicly reachable over HTTPS.
+- Confirm `Backend__BaseUrl` and eSewa callback paths.
+- Confirm eSewa sandbox/production credentials and URLs match.
+- Confirm `Frontend__BaseUrl` and redirect paths.
+
+Frontend route refresh returns 404:
+- Add the SPA fallback/rewrite to `index.html` on Vercel/Netlify.
+
+FINAL PRE-PUSH CHECKLIST
+========================
+
+    dotnet build .\Laced.Api\Laced.Api.csproj
+    npm --prefix .\client install
+    npm --prefix .\client run build
+
+Before pushing:
+- Do not commit `node_modules`, `dist`, `bin`, or `obj`.
+- Do not commit `.env` files containing secrets.
+- Do not commit production connection strings or JWT/eSewa secrets.
+- Review `git status` and `git diff --cached`.
+- Rotate any secret that has already been exposed.

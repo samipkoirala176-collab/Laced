@@ -1,0 +1,25 @@
+# Build output
+**/bin/
+**/obj/
+client/dist/
+client/dist-ssr/
+
+# Dependencies
+client/node_modules/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+Laced.Api/appsettings.Local.json
+
+# Logs and local tooling
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Local uploaded product files
+Laced.Api/wwwroot/uploads/products/*
+!Laced.Api/wwwroot/uploads/products/.gitkeep

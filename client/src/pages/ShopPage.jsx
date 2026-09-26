@@ -126,16 +126,17 @@ export default function ShopPage() {
 
   return (
     <div className="space-y-8 pb-8">
-      <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-slate-200 border-l-4 border-l-cyan-300 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Latest Drops</h1>
+            <p className="mt-2 text-sm text-slate-500">A considered edit of everyday pairs, ready to wear.</p>
           </div>
 
           <button
             type="button"
             onClick={() => setFilterOpen((value) => !value)}
-            className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 md:hidden"
+            className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 lg:hidden"
           >
             <SlidersHorizontal size={16} />
             Filters
@@ -144,7 +145,7 @@ export default function ShopPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className={`${filterOpen ? 'block' : 'hidden'} rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm lg:block`}>
+        <aside className={`${filterOpen ? 'block' : 'hidden'} self-start rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm lg:mt-8 lg:block`}>
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
             {(filters.search || filters.brand || filters.minPrice || filters.maxPrice || filters.size) && (

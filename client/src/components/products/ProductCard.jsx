@@ -41,14 +41,14 @@ export default function ProductCard({ product }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{product.brand}</p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.05em] text-slate-900">{product.name}</h3>
+            <h3 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-slate-900">{product.name}</h3>
           </div>
           <Link to={`/products/${product.id}`} className="rounded-full border border-slate-200 p-2 text-slate-700 transition hover:border-slate-300">
             <ArrowUpRight size={16} />
           </Link>
         </div>
 
-        <p className="mt-4 text-lg font-semibold text-slate-900">{formatPrice(product.price)}</p>
+        <p className="mt-3 text-base font-medium text-slate-600">{formatPrice(product.price)}</p>
 
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
           {availableSizes.length > 0 ? (

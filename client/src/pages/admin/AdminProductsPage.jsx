@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { apiRequest } from '../../services/api';
 import { buildImageUrl } from '../../utils/image';
 import { useToast } from '../../context/ToastContext';
@@ -20,6 +21,7 @@ export default function AdminProductsPage() {
   const [heroImageId, setHeroImageId] = useState('');
   const [pagination, setPagination] = useState({ page: 1, totalPages: 0, totalItems: 0 });
   const [state, setState] = useState({ loading: true, saving: false, error: '' });
+  const [searchParams] = useSearchParams();
 
   const loadProducts = async (page = pagination.page) => {
     try {
@@ -53,6 +55,12 @@ export default function AdminProductsPage() {
     setHeroImageId(hero?.id || '');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    const product = products.find((item) => item.id === editId);
+    if (product) startEdit(product);
+  }, [products, searchParams]);
 
   const updateSize = (index, key, value) => setForm((current) => ({ ...current, sizes: current.sizes.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item) }));
   const addSize = () => setForm((current) => ({ ...current, sizes: [...current.sizes, { size: '', quantity: 0 }] }));
@@ -114,7 +122,7 @@ export default function AdminProductsPage() {
         <button disabled={state.saving} className="mt-5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60">{state.saving ? 'Saving...' : editingId ? 'Update product' : 'Create product'}</button>
       </form>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-end justify-between gap-3"><div><h2 className="text-2xl font-semibold text-slate-900">Products</h2><p className="mt-1 text-sm text-slate-500">{pagination.totalItems} products, including inactive listings.</p></div></div>{state.loading ? <p className="mt-4 text-sm text-slate-500">Loading products...</p> : state.error ? <p className="mt-4 text-sm text-red-700">{state.error}</p> : products.length === 0 ? <p className="mt-4 text-sm text-slate-600">No products found.</p> : <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-slate-200 text-xs uppercase tracking-[0.14em] text-slate-500"><tr><th className="px-3 py-3">Product</th><th className="px-3 py-3">Brand</th><th className="px-3 py-3">Price</th><th className="px-3 py-3">Sizes</th><th className="px-3 py-3">Actions</th></tr></thead><tbody>{products.map((product) => <tr key={product.id} className="border-b border-slate-100"><td className="px-3 py-3 font-medium text-slate-900">{product.name}{!product.isActive && <span className="ml-2 rounded bg-amber-100 px-2 py-1 text-xs text-amber-800">Inactive</span>}</td><td className="px-3 py-3">{product.brand}</td><td className="px-3 py-3">NPR {Number(product.price).toLocaleString()}</td><td className="px-3 py-3">{product.sizes?.map((size) => `${size.size} (${size.quantity})`).join(', ')}</td><td className="px-3 py-3"><button type="button" onClick={() => startEdit(product)} className="mr-3 underline">Edit</button><button type="button" onClick={() => handleDelete(product)} className="text-red-600 underline">Delete</button></td></tr>)}</tbody></table></div>}<Pagination page={pagination.page} totalPages={pagination.totalPages} onChange={loadProducts} /></section>
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-end justify-between gap-3"><div><h2 className="text-2xl font-semibold text-slate-900">Products</h2><p className="mt-1 text-sm text-slate-500">{pagination.totalItems} products, including inactive listings.</p></div></div>{state.loading ? <p className="mt-4 text-sm text-slate-500">Loading products...</p> : state.error ? <p className="mt-4 text-sm text-red-700">{state.error}</p> : products.length === 0 ? <p className="mt-4 text-sm text-slate-600">No products found.</p> : <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-slate-200 text-xs uppercase tracking-[0.14em] text-slate-500"><tr><th className="px-3 py-3">Product</th><th className="px-3 py-3">Brand</th><th className="px-3 py-3">Price</th><th className="px-3 py-3">Sizes</th><th className="px-3 py-3">Actions</th></tr></thead><tbody>{products.map((product) => <tr key={product.id} className="border-b border-slate-100"><td className="px-3 py-3 font-medium text-slate-900"><Link to={`/admin/products/${product.id}`} className="underline">{product.name}</Link>{!product.isActive && <span className="ml-2 rounded bg-amber-100 px-2 py-1 text-xs text-amber-800">Inactive</span>}</td><td className="px-3 py-3">{product.brand}</td><td className="px-3 py-3">NPR {Number(product.price).toLocaleString()}</td><td className="px-3 py-3">{product.sizes?.map((size) => `${size.size} (${size.quantity})`).join(', ')}</td><td className="px-3 py-3"><button type="button" onClick={() => startEdit(product)} className="mr-3 underline">Edit</button><button type="button" onClick={() => handleDelete(product)} className="text-red-600 underline">Delete</button></td></tr>)}</tbody></table></div>}<Pagination page={pagination.page} totalPages={pagination.totalPages} onChange={loadProducts} /></section>
     </div>
   );
 }

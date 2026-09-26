@@ -126,8 +126,8 @@ export default function ProductDetailPage() {
 
         <div className="flex flex-col justify-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{product.brand}</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">{product.name}</h1>
-          <p className="mt-5 text-3xl font-semibold text-slate-900">NPR {Number(product.price || 0).toLocaleString()}</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.06em] text-slate-900">{product.name}</h1>
+          <p className="mt-4 text-xl font-medium text-slate-600">NPR {Number(product.price || 0).toLocaleString()}</p>
           <p className="mt-5 text-slate-600">{product.description || 'No description available for this sneaker.'}</p>
 
           <div className="mt-8 space-y-6">

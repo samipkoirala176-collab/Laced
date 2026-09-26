@@ -19,6 +19,7 @@ import AccountRefundsPage from './pages/account/AccountRefundsPage';
 import OrderDetailPage from './pages/account/OrderDetailPage';
 import AdminPage from './pages/admin/AdminPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductDetailPage from './pages/admin/AdminProductDetailPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import AdminRefundsPage from './pages/admin/AdminRefundsPage';
@@ -96,6 +97,7 @@ function App() {
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminPage />} />
           <Route path="products" element={<AdminProductsPage />} />
+          <Route path="products/:id" element={<AdminProductDetailPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />
           <Route path="orders/:id" element={<AdminOrderDetailPage />} />
           <Route path="refunds" element={<AdminRefundsPage />} />
