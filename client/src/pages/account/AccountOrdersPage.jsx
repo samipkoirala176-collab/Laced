@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { OrderStatusBadge, PaymentMethodBadge, PaymentStatusBadge } from '../../components/order/StatusBadge';
 import { apiRequest } from '../../services/api';
+import Pagination from '../../components/common/Pagination';
 
 function formatCurrency(value) {
   return `NPR ${Number(value || 0).toLocaleString()}`;
@@ -11,22 +12,22 @@ export default function AccountOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 0 });
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const result = await apiRequest('/api/orders?page=1&pageSize=20');
-        setOrders(result?.items || []);
-      } catch (err) {
-        setError(err.message || 'Unable to load orders right now.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchOrders = async (page = 1) => {
+    try {
+      setLoading(true);
+      const result = await apiRequest(`/api/orders?page=${page}&pageSize=10`);
+      setOrders(result?.items || []);
+      setPagination({ page: result?.page || page, totalPages: result?.totalPages || 0 });
+    } catch (err) {
+      setError(err.message || 'Unable to load orders right now.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   if (loading) {
     return <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">Loading orders...</div>;
@@ -92,6 +93,7 @@ export default function AccountOrdersPage() {
           </div>
         </Link>
       ))}
+      <Pagination page={pagination.page} totalPages={pagination.totalPages} onChange={fetchOrders} />
     </div>
   );
 }

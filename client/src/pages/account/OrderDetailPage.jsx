@@ -258,7 +258,7 @@ export default function OrderDetailPage() {
           <div className="mt-5 space-y-4">
             {order.items?.map((item) => (
               <div key={item.id} className="flex flex-col gap-3 rounded-[1rem] border border-slate-200 p-4 sm:flex-row sm:items-center">
-                <img src={buildImageUrl(item.image || item.heroImage)} alt={item.productName} className="h-20 w-20 rounded-lg object-cover" />
+                <img src={buildImageUrl(item.heroImage || item.image)} alt={item.productName} className="h-20 w-20 rounded-lg object-cover" />
                 <div className="flex-1">
                   <p className="font-medium text-slate-900">{item.productName}</p>
                   <div className="mt-2 flex flex-col gap-1 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
