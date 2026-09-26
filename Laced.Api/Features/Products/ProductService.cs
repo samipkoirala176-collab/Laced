@@ -32,7 +32,11 @@ public class ProductService(
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
             var search = parameters.Search.Trim();
-            query = query.Where(product => product.Name.Contains(search) || product.Brand.Contains(search));
+            var searchPattern = $"%{search}%";
+            query = query.Where(product =>
+                EF.Functions.ILike(product.Name, searchPattern) ||
+                EF.Functions.ILike(product.Description, searchPattern) ||
+                EF.Functions.ILike(product.Brand, searchPattern));
         }
 
         if (!string.IsNullOrWhiteSpace(parameters.Brand))
