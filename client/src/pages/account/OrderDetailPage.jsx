@@ -64,6 +64,7 @@ export default function OrderDetailPage() {
   const paymentMethod = Number(order?.paymentMethod ?? 0);
   const canCancel = ![3, 4, 5].includes(orderStatus);
   const canPayAgain = paymentMethod === 1 && orderStatus !== 5 && paymentStatus !== 1 && paymentStatus !== 3;
+  const canCheckPayment = paymentMethod === 1 && paymentStatus === 0 && orderStatus !== 5;
   const existingRefund = refunds.find((refund) => refund.orderId === id && Number(refund.status) !== 2);
   const canRequestRefund = orderStatus === 5 && paymentStatus === 1 && paymentMethod === 1 && !existingRefund;
 
@@ -149,8 +150,7 @@ export default function OrderDetailPage() {
       <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Order details</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">{order.id}</h1>
+            <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">{order.id}</h1>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
@@ -203,14 +203,7 @@ export default function OrderDetailPage() {
 
           {paymentMethod === 1 && (
             <>
-              <button
-                type="button"
-                onClick={handleCheckStatus}
-                disabled={checkingStatus}
-                className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {checkingStatus ? 'Checking...' : 'Check Payment Status'}
-              </button>
+              {canCheckPayment && <div className="flex flex-col gap-1"><button type="button" onClick={handleCheckStatus} disabled={checkingStatus} className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-70">{checkingStatus ? 'Checking...' : 'Refresh payment status'}</button><span className="text-xs text-slate-500">Checks eSewa and updates this order.</span></div>}
 
               {canPayAgain && (
                 <button
@@ -250,6 +243,11 @@ export default function OrderDetailPage() {
           </button>
         </form>
       )}
+
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex items-center justify-between gap-4"><h2 className="text-2xl font-semibold tracking-[-0.05em] text-slate-900">Refund history</h2><span className="text-sm text-slate-500">{existingRefund ? 'Refund requested' : 'No refund requested'}</span></div>
+        {refunds.filter((refund) => refund.orderId === id).length === 0 ? <p className="mt-3 text-sm text-slate-600">There are no refund requests linked to this order.</p> : <div className="mt-4 space-y-3">{refunds.filter((refund) => refund.orderId === id).map((refund) => <div key={refund.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="font-medium text-slate-900">{['Requested', 'Approved', 'Rejected', 'Paid'][Number(refund.status)] || 'Unknown'}</p><p className="text-xs text-slate-500">{new Date(refund.createdAt).toLocaleString()}</p></div><p className="mt-2 text-sm text-slate-700">{refund.reason}</p>{refund.adminNote && <p className="mt-2 text-sm text-slate-600"><span className="font-medium text-slate-900">Admin note:</span> {refund.adminNote}</p>}</div>)}</div>}
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_360px]">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">

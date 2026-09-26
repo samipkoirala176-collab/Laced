@@ -86,8 +86,7 @@ export default function SignupPage() {
 
   return (
     <div className="mx-auto max-w-xl rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Create account</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">Sign up for Laced</h1>
+      <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Sign up for Laced</h1>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
         <div>

@@ -7,8 +7,7 @@ export default function PaymentFailurePage() {
 
   return (
     <div className="rounded-[2rem] border border-red-200 bg-red-50 p-8 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-700">Payment result</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">Payment was not completed</h1>
+      <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Payment was not completed</h1>
       <p className="mt-4 max-w-xl text-slate-600">
         {status === 'invalid' ? 'The payment callback was invalid or incomplete.' : 'The payment attempt was unsuccessful or cancelled.'}
       </p>

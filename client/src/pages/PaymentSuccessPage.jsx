@@ -6,6 +6,7 @@ import { apiRequest } from '../services/api';
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const callbackStatus = searchParams.get('status');
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
 
@@ -16,12 +17,9 @@ export default function PaymentSuccessPage() {
 
   return (
     <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment update</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">
-        Payment result
-      </h1>
+      <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">{callbackStatus === 'pending' ? 'Payment is being verified' : 'Payment confirmed'}</h1>
       <p className="mt-4 max-w-xl text-slate-600">
-        The backend processed the eSewa callback. The order below is the source of truth for the current payment state.
+        {callbackStatus === 'pending' ? 'eSewa has returned your payment for verification. Check the order status before trying again.' : 'Your eSewa payment callback was received. The order below shows the current payment and delivery state.'}
       </p>
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
       {order && <div className="mt-5 flex flex-wrap gap-3"><span className="text-sm font-medium text-slate-700">Order status</span><OrderStatusBadge status={order.orderStatus} /><span className="text-sm font-medium text-slate-700">Payment status</span><PaymentStatusBadge status={order.paymentStatus} /></div>}

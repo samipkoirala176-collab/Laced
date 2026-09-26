@@ -48,8 +48,7 @@ export default function OrderConfirmationPage() {
   return (
     <div className="space-y-6 pb-8">
       <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Order confirmation</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">Order placed successfully</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Order placed successfully</h1>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">

@@ -9,7 +9,7 @@ const initialValues = {
 };
 
 export default function LoginPage() {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, role, login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,7 +18,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    const redirectTo = location.state?.from || '/account';
+    const redirectTo = role === 'Admin' ? '/admin' : location.state?.from || '/account';
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -52,9 +52,9 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      await login({ email: values.email.trim(), password: values.password });
+      const authData = await login({ email: values.email.trim(), password: values.password });
       showToast('Login successful.', 'success');
-      navigate(location.state?.from || '/account');
+      navigate(authData.user?.role === 'Admin' ? '/admin' : location.state?.from || '/account');
     } catch (error) {
       showToast(error.message || 'Unable to log in right now.', 'error');
     } finally {

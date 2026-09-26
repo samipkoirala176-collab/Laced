@@ -15,8 +15,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Cart</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">Your cart is empty</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Your cart is empty</h1>
         <p className="mt-4 text-slate-600">Start exploring the latest drops and add a pair to your cart.</p>
         <Link to="/shop" className="mt-6 inline-flex rounded-full bg-slate-900 px-4 py-3 text-sm font-medium text-white hover:bg-slate-700">
           Continue shopping
@@ -42,8 +41,7 @@ export default function CartPage() {
       <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Cart</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-slate-900">Your items</h1>
+            <h1 className="text-3xl font-semibold tracking-[-0.06em] text-slate-900">Your items</h1>
           </div>
           <button type="button" onClick={() => clearCart()} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
             Clear cart

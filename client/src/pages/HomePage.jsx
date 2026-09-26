@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { categories, featuredProducts } from '../data/mockData';
+import { categories } from '../data/mockData';
 
 export default function HomePage() {
   return (
@@ -45,43 +45,19 @@ export default function HomePage() {
               to={category.href}
               className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300"
             >
-              <p className="text-sm font-medium text-slate-500">Collection</p>
-              <p className="mt-3 text-xl font-semibold tracking-[-0.04em] text-slate-900">{category.name}</p>
+              <p className="text-xl font-semibold tracking-[-0.04em] text-slate-900">{category.name}</p>
             </Link>
           ))}
         </div>
       </section>
 
-      <section>
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-semibold tracking-[-0.05em] text-slate-900">New Arrivals</h2>
-          <Link to="/shop" className="text-sm font-medium text-slate-700 transition hover:text-slate-900">
-            View all
-          </Link>
+      <Link to="/shop" className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-slate-900 p-6 text-white shadow-sm transition hover:bg-slate-800 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-[-0.05em]">Explore the latest collection</h2>
+          <p className="mt-2 max-w-xl text-sm text-slate-300">Browse the current catalogue, filter by size, and choose a pair that fits your everyday.</p>
         </div>
-
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {featuredProducts.map((product) => (
-            <article key={product.id} className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
-              <img src={product.image} alt={product.name} className="h-72 w-full object-cover" />
-              <div className="p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">{product.category}</span>
-                  <span className="text-xs font-medium text-slate-500">{product.accent}</span>
-                </div>
-                <h3 className="mt-3 text-xl font-semibold tracking-[-0.04em] text-slate-900">{product.name}</h3>
-                <p className="mt-2 text-sm text-slate-600">{product.description}</p>
-                <div className="mt-5 flex items-center justify-between">
-                  <span className="text-lg font-semibold text-slate-900">NPR {product.price.toLocaleString()}</span>
-                  <Link to={`/products/${product.id}`} className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300">
-                    View
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+        <span className="shrink-0 rounded-full bg-cyan-300 px-4 py-2 text-sm font-medium text-slate-950">Shop all sneakers</span>
+      </Link>
 
       <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-3 md:p-8">
         <div>
